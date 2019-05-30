@@ -1,0 +1,5 @@
+name: notebook
+channels:
+  - defaults
+dependencies:
+  - requests=2.21.0
