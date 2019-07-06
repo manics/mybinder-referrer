@@ -1,5 +1,8 @@
-# IDR mybinder example
+# mybinder-referrer example
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gist/manics/18259caf11ddd188892efce88380bfa5/master)
+Example of redirecting to mybinder based on the referrer header.
 
-Example mybinder notebook using the [IDR](https://idr.openmicroscopy.org/about/) web API.
+**Click** on this link: https://www.manicstreetpreacher.co.uk/mybinder-referrer/
+
+And you should see another link that loads **this** repository in mybinder.
+This works by looking at the HTTP referrer and generating the mybinder URL in client-side Javascript.
