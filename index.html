@@ -33,9 +33,11 @@
               mybinderurl = "https://mybinder.org/v2/gist/" + m[2] + "/" + m[3] + "/master";
             }
             else if (m[1] == "github.com") {
-              mybinderurl = "https://mybinder.org/v2/gh/" + m[2] + "/" + m[3] + "/master";
+              mybinderurl = "https://mybinder.org/v2/gh/" + m[2] + "/" + m[3];
               if (m[5]) {
                 mybinderurl += "/" + m[5];
+              } else {
+                mybinderurl += "/master";
               }
             }
             var mybindera = document.createElement("a");
