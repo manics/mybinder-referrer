@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>mybinder referrer</title>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      .source {
+        font-size: 70%;
+      }
+    </style>
+    <script type="text/javascript">
+      var url = document.referrer;
+
+      function setbinderurl() {
+        document.getElementById("mybinder-referrer").textContent = "Referrer: " + url
+        var regexes = [
+            /\w+:\/\/(gist.github.com)\/([^\/]+)\/([^\/]+)/,
+            /\w+:\/\/(github.com)\/([^\/]+)\/([^\/]+)(\/tree\/([^\/]+))?/,
+        ]
+        var m;
+        for (let i = 0; i < regexes.length; i++) {
+            m = regexes[i].exec(url)
+            if (m) {
+              break;
+            }
+        }
+        var mybinder;
+        if (m) {
+            if (m[1] == "gist.github.com") {
+              mybinderurl = "https://mybinder.org/v2/gist/" + m[2] + "/" + m[3] + "/master";
+            }
+            else if (m[1] == "github.com") {
+              mybinderurl = "https://mybinder.org/v2/gh/" + m[2] + "/" + m[3] + "/master";
+              if (m[5]) {
+                mybinderurl += "/" + m[5];
+              }
+            }
+            var mybindera = document.createElement("a");
+            mybindera.textContent = mybinderurl;
+            mybindera.setAttribute("href", mybinderurl);
+            document.getElementById("mybinder-info").appendChild(mybindera);
+        } else {
+            document.getElementById("mybinder-info").textContent = 'Unable to find mybinder repo in referrer';
+        }
+      }
+    </script>
+  </head>
+  <body onload="setbinderurl();">
+    <p id="mybinder-referrer"></p>
+    <p id="mybinder-info"></p>
+
+    <p class="source"><a href="https://github.com/manics/mybinder-referrer/">View source on GitHub.</a></p>
+  </body>
+</html>
+
+
