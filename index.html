@@ -14,8 +14,13 @@
     <script type="text/javascript">
       var url = document.referrer;
 
+      function setreferrerurl() {
+        document.getElementById("mybinder-referrer").value = url;
+        setbinderurl();
+      }
+
       function setbinderurl() {
-        document.getElementById("mybinder-referrer").textContent = "Referrer: " + url
+        var url = document.getElementById("mybinder-referrer").value;
         var regexes = [
             /\w+:\/\/(gist.github.com)\/([^\/]+)\/([^\/]+)/,
             /\w+:\/\/(github.com)\/([^\/]+)\/([^\/]+)(\/tree\/([^\/]+))?/,
@@ -27,7 +32,7 @@
               break;
             }
         }
-        var mybinder;
+        var mybinder = []
         if (m) {
             if (m[1] == "gist.github.com") {
               mybinderurl = "https://mybinder.org/v2/gist/" + m[2] + "/" + m[3] + "/master";
@@ -40,18 +45,26 @@
                 mybinderurl += "/master";
               }
             }
+
+            mybinder.push(document.createTextNode("MyBinder URL: "))
             var mybindera = document.createElement("a");
-            mybindera.textContent = "MyBinder URL: " + mybinderurl;
+            mybindera.textContent = mybinderurl;
             mybindera.setAttribute("href", mybinderurl);
-            document.getElementById("mybinder-info").appendChild(mybindera);
+            mybinder.push(mybindera);
         } else {
-            document.getElementById("mybinder-info").textContent = 'Unable to find mybinder repo in referrer';
+          mybinder.push(document.createTextNode("Unable to find mybinder repo in referrer, try pasting your previous URL above."));
         }
+        var binderinfo = document.getElementById("mybinder-info");
+        while (binderinfo.firstChild) {
+          binderinfo.firstChild.remove();
+        }
+        mybinder.forEach(function (e) { binderinfo.appendChild(e); });
       }
     </script>
   </head>
-  <body onload="setbinderurl();">
-    <p id="mybinder-referrer"></p>
+  <body onload="setreferrerurl();">
+    <label for="mybinder-referrer">Referrer:</label>
+    <input id="mybinder-referrer" size="80" value="" oninput="setbinderurl()" />
     <p id="mybinder-info"></p>
 
     <p class="source"><a href="https://github.com/manics/mybinder-referrer/">View source on GitHub.</a></p>
