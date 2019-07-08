@@ -20,39 +20,59 @@
       }
 
       function setbinderurl() {
-        var url = document.getElementById("mybinder-referrer").value;
-        var regexes = [
-            /\w+:\/\/(gist.github.com)\/([^\/]+)\/([^\/]+)/,
-            /\w+:\/\/(github.com)\/([^\/]+)\/([^\/]+)(\/tree\/([^\/]+))?/,
-        ]
-        var m;
-        for (let i = 0; i < regexes.length; i++) {
-            m = regexes[i].exec(url)
-            if (m) {
-              break;
-            }
-        }
-        var mybinder = []
-        if (m) {
-            if (m[1] == "gist.github.com") {
-              mybinderurl = "https://mybinder.org/v2/gist/" + m[2] + "/" + m[3] + "/master";
-            }
-            else if (m[1] == "github.com") {
-              mybinderurl = "https://mybinder.org/v2/gh/" + m[2] + "/" + m[3];
-              if (m[5]) {
-                mybinderurl += "/" + m[5];
-              } else {
-                mybinderurl += "/master";
-              }
-            }
+        var mybinderurl;
+        var input = document.getElementById("mybinder-referrer").value;
+        try {
+          var url = new URL(input);
+          var parts = url.pathname.split('/');
 
+          if (url.hostname == "github.com" && parts.length > 2) {
+            mybinderurl = "https://mybinder.org/v2/gh/" + parts[1] + "/" + parts[2] + "/" + (parts[4] || "master");
+            if (parts.length > 5) {
+              mybinderurl += '?filepath='+parts.slice(5).join('%2F');
+            }
+          }
+
+          if (url.hostname == "gist.github.com" && parts.length > 2) {
+            mybinderurl = "https://mybinder.org/v2/gist/" + parts[1] + "/" + parts[2] + "/" + (parts[3] || "master");
+          }
+
+          if (url.hostname == "gitlab.com" && parts.length > 2) {
+            let repo = '';
+            let extra = '';
+            let branch_tag_hash = 'master';
+            let blob_idx = parts.indexOf("blob");
+            if (blob_idx === -1) {
+              // tree is used instead of blob when looking at a directory so try
+              // to find that instead
+              blob_idx = parts.indexOf("tree");
+            }
+            if (blob_idx > 1){
+              repo = parts.slice(1, blob_idx).join("/");
+              branch_tag_hash = parts[blob_idx + 1];
+              extra = "?filepath=" + parts.slice(blob_idx + 2).join("%2F")
+            }
+            else {
+              repo = parts.slice(1).join("/");
+            }
+            mybinderurl = "https://mybinder.org/v2/gl/" + encodeURIComponent(repo) + "/" + branch_tag_hash + extra;
+          }
+        } catch(err) {
+          // Not a URL
+          if (/10\.\d{4,}[\.\d]*\/.+/.exec(input)) {
+            mybinderurl = "https://mybinder.org/v2/zenodo/" + input;
+          }
+        }
+
+        var mybinder = []
+        if (mybinderurl) {
             mybinder.push(document.createTextNode("MyBinder URL: "))
             var mybindera = document.createElement("a");
             mybindera.textContent = mybinderurl;
             mybindera.setAttribute("href", mybinderurl);
             mybinder.push(mybindera);
         } else {
-          mybinder.push(document.createTextNode("Unable to find mybinder repo in referrer, try pasting your previous URL above."));
+          mybinder.push(document.createTextNode("Unable to find mybinder repo, try pasting your URL above."));
         }
         var binderinfo = document.getElementById("mybinder-info");
         while (binderinfo.firstChild) {
